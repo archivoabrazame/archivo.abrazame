@@ -32,7 +32,7 @@ input{width:100%;background:transparent;color:var(--ink);border:0;border-bottom:
 <div id="toast"></div>
 <script src="config.js"></script>
 <script>
-const API=window.AA_API||'https://TU-WORKER.TU-USUARIO.workers.dev';
+const API='https://archivoabrazame.renato-diaz-daki.workers.dev';
 const $=s=>document.querySelector(s);let pass=sessionStorage.getItem('aa_k')||'',data=[],flt='todos';
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2600)}
 async function api(path,body){const r=await fetch(API+path,{method:body?'POST':'GET',headers:{'x-pass':pass,'content-type':'application/json'},body:body?JSON.stringify(body):undefined});if(r.status==401)throw 'pass';if(r.status==429)throw 'rate';if(!r.ok)throw 'err';return r.json()}
