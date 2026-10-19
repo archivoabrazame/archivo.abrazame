@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
+<title>curaduría · archivo.abrázame</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ecebe8;--ink:#111;--soft:#dddcd8;--line:rgba(17,17,17,.2);--red:#d9251c;--hel:'Helvetica Neue',Helvetica,Arial,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#101010;--ink:#f1eee6;--soft:#1d1d1d;--line:rgba(241,238,230,.2);--red:#ff4a3c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:300 16px/1.65 var(--hel)}
+.wrap{max-width:900px;margin:0 auto;padding:0 clamp(20px,5vw,48px)}
+header{border-bottom:1px solid var(--line);padding:18px 0;font:700 17px 'Poppins';letter-spacing:-.02em}header span{color:var(--red)}
+h1{font:700 clamp(40px,8vw,84px)/.95 'Poppins';letter-spacing:-.05em;margin:0 0 14px}h1 em{font-weight:300;color:var(--red)}
+.gate{padding-block:clamp(56px,14vh,140px);max-width:560px}
+input{width:100%;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--ink);padding:14px 0;font:300 20px var(--hel);outline:0;margin:18px 0}
+.btn{font:600 12px 'Poppins';padding:10px 20px;border-radius:99px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}.btn:hover,.btn.on{background:var(--ink);color:var(--bg)}.btn.r{border-color:var(--red);color:var(--red)}.btn.r:hover{background:var(--red);color:#fff}
+#er{color:var(--red);font:400 13px 'Poppins';min-height:1.4em}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:22px 0;border-bottom:1px solid var(--line)}.bar .n{margin-left:auto;font:600 11px 'Poppins';letter-spacing:.16em;text-transform:uppercase;opacity:.6}
+.p{padding:30px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:18px}.p.c{border-left:4px solid var(--red);padding-left:18px}
+.p b{font:600 11px 'Poppins';letter-spacing:.16em;text-transform:uppercase;opacity:.65}.p pre{white-space:pre-wrap;font-size:21px;line-height:1.45;margin:10px 0 0}
+.bx{display:flex;flex-direction:column;gap:8px}
+.f0{font-family:var(--hel);font-weight:300}.f1{font:700 19px 'Poppins'}.f2{font:italic 300 22px 'Poppins'}.f3{font:400 15px 'Poppins';text-transform:uppercase;letter-spacing:.08em}.f4{font:700 19px var(--hel)}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 22px;border-radius:99px;font:400 13px 'Poppins';opacity:0;transition:.3s;pointer-events:none}#toast.show{opacity:1}
+@media (max-width:620px){.p{grid-template-columns:1fr}.bx{flex-direction:row;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header><div class="wrap">archivo.abrázame <span>· curaduría</span></div></header>
+<main id="lg" class="wrap gate"><h1>entrada <em>curadora</em></h1><p>Solo para quien elige qué poemas salen al Instagram.</p>
+<input id="pw" type="password" placeholder="contraseña" autocomplete="current-password"><button class="btn" id="go">entrar →</button><p id="er"></p></main>
+<main id="pn" class="wrap" hidden><div class="bar"><button class="btn on" data-f="todos">todos</button><button class="btn" data-f="elegidos">elegidos</button><button class="btn" data-f="pendientes">pendientes</button><button class="btn" id="rf">actualizar</button><button class="btn" id="ex">salir</button><span class="n" id="ct"></span></div><div id="ls"></div></main>
+<div id="toast"></div>
+<script src="config.js"></script>
+<script>
+const API=window.AA_API||'https://TU-WORKER.TU-USUARIO.workers.dev';
+const $=s=>document.querySelector(s);let pass=sessionStorage.getItem('aa_k')||'',data=[],flt='todos';
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2600)}
+async function api(path,body){const r=await fetch(API+path,{method:body?'POST':'GET',headers:{'x-pass':pass,'content-type':'application/json'},body:body?JSON.stringify(body):undefined});if(r.status==401)throw 'pass';if(r.status==429)throw 'rate';if(!r.ok)throw 'err';return r.json()}
+async function load(){try{data=await api('/list');sessionStorage.setItem('aa_k',pass);$('#lg').hidden=true;$('#pn').hidden=false;draw()}catch(e){sessionStorage.removeItem('aa_k');$('#lg').hidden=false;$('#pn').hidden=true;$('#er').textContent=e=='pass'?'contraseña incorrecta':e=='rate'?'demasiados intentos; espera unos minutos':API.includes('TU-WORKER')?'falta pegar la dirección del Worker en curador.html':'no pude conectar con el servidor'}}
+function draw(){const L=data.filter(p=>flt=='todos'||(flt=='elegidos')==p.c);$('#ct').textContent=data.filter(p=>p.c).length+' elegidos · '+data.length+' recibidos';const box=$('#ls');box.innerHTML='';
+if(!L.length){box.innerHTML='<p style="padding:40px 0;opacity:.7">no hay poemas aquí todavía.</p>';return}
+L.forEach(p=>{const d=document.createElement('div');d.className='p'+(p.c?' c':'');const m=document.createElement('div');const h=document.createElement('b');h.textContent=p.t+' — '+new Date(p.d).toLocaleDateString('es-CL')+' — '+(p.s||'anónimo');const pr=document.createElement('pre');pr.className='f'+p.f;pr.textContent=p.x;m.append(h,pr);
+const bx=document.createElement('div');bx.className='bx';
+const a=document.createElement('button');a.className='btn';a.textContent=p.c?'quitar elegido':'elegir ★';a.onclick=async()=>{try{const u=await api('/mark',{id:p.id});p.c=u.c;draw()}catch(e){toast('no pude guardar el cambio')}};
+const c=document.createElement('button');c.className='btn';c.textContent='copiar';c.onclick=async()=>{try{await navigator.clipboard.writeText(p.x+'\n\n— '+(p.s||'anónimo'));toast('copiado para instagram')}catch(e){toast('no pude copiar')}};
+const x=document.createElement('button');x.className='btn r';x.textContent='borrar';x.onclick=async()=>{if(!confirm('¿Borrar este poema para siempre?'))return;try{await api('/del',{id:p.id});data=data.filter(q=>q.id!=p.id);draw()}catch(e){toast('no pude borrarlo')}};
+bx.append(a,c,x);d.append(m,bx);box.appendChild(d)})}
+$('#go').onclick=()=>{pass=$('#pw').value;load()};$('#pw').addEventListener('keydown',e=>{if(e.key=='Enter'){pass=$('#pw').value;load()}});
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{flt=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.classList.toggle('on',x==b));draw()});
+$('#rf').onclick=load;$('#ex').onclick=()=>{sessionStorage.removeItem('aa_k');pass='';location.reload()};
+if(pass)load();
+</script>
+</body>
+</html>
